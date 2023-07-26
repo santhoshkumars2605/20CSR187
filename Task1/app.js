@@ -1,6 +1,9 @@
 const { default: axios } = require('axios');
 const express = require('express')
+const bodyparser = require('body-parser')
 const app = express();
+app.use(bodyparser.urlencoded({ extended: true }))
+app.use(bodyparser.json())
 app.use(express.json())
 
 app.get("/",(req,res)=>{
@@ -8,9 +11,9 @@ app.get("/",(req,res)=>{
 })
 
 app.get("/numbers",async(req,res)=>{
-    const q= req.query.url;
+    const arr= req.query.url;
     var result = [];
-    const axiosPromises = q.map(async (i) => {
+    const axiosPromises = arr.map(async (i) => {
         try {
           await axios.get(i).then((resp)=>{
         
@@ -24,10 +27,11 @@ app.get("/numbers",async(req,res)=>{
         }
       });
       await Promise.all(axiosPromises);
-      console.log(result);
-      const resp = new Set(result.sort((a, b) => a - b));
-    console.log(resp)
-    res.send(working);
+    //   console.log(result);
+      const newRusult = new Set([...result].sort((a, b) => a - b));
+    //   console.log("newReult",newRusult);
+
+      res.json({"numbers":[...newRusult]});
 })
 
 app.listen(8008,()=>{
